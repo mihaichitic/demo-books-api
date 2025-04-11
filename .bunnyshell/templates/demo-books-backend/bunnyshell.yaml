@@ -1,0 +1,49 @@
+kind: Environment
+name: Demo books backend
+type: primary
+components:
+    -
+        kind: Application
+        name: api
+        gitRepo: 'https://github.com/mihaichitic/demo-books-api.git'
+        gitBranch: main
+        gitApplicationPath: ./backend
+        dockerCompose:
+            build:
+                context: ./backend
+                dockerfile: ./Dockerfile
+                target: dev
+            environment:
+                FRONTEND_URL:  'to be provided; something like https://\{\{ components.app.ingress.hosts[0].hostname \}\}'
+                POSTGRES_DB: bunny_books
+                POSTGRES_HOST: db
+                POSTGRES_PASSWORD: need-to-replace
+                POSTGRES_USER: postgres
+            ports:
+                - '3080:3080'
+        hosts:
+            -
+                hostname: 'api-{{ env.base_domain }}'
+                path: /
+                servicePort: 3080
+    -
+        kind: Database
+        name: db
+        dockerCompose:
+            image: postgres:15.2-alpine3.17
+            environment:
+                POSTGRES_DB: bunny_books
+                POSTGRES_PASSWORD: need-to-replace
+                POSTGRES_USER: postgres
+            ports:
+                - '5432:5432'
+        volumes:
+            -
+                name: data-volume
+                mount: /var/lib/postgresql/data
+                subPath: ''
+volumes:
+    -
+        name: data-volume
+        size: 1Gi
+        type: disk
