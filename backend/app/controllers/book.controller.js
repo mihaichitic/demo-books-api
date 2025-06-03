@@ -12,7 +12,7 @@ exports.create = (req, res) => {
 
   const book = {
     title: req.body.title,
-    description: req.body.description,
+    description: 'PR - ' + req.body.description,
     available: req.body.available ? req.body.available : false
   };
 
